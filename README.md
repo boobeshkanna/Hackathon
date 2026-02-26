@@ -173,7 +173,3 @@ See `.kiro/specs/vernacular-artisan-catalog/tasks.md` for implementation roadmap
 ## License
 
 MIT License - Hackathon Project
-
-## Contact
-
-[Your Name] - [Your Email]
