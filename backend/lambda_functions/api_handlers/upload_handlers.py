@@ -20,6 +20,7 @@ from backend.models.catalog import CatalogProcessingRecord, ProcessingStatus
 from backend.lambda_functions.shared.config import config
 from backend.services.s3_upload import multipart_upload_manager
 from backend.services.queue import sqs_publisher
+from backend.services.tenant_service import tenant_service
 
 # Initialize AWS clients
 logger = Logger()
@@ -41,6 +42,32 @@ class UploadHandler:
         self.sqs_client = sqs_client
         self.raw_bucket = config.S3_RAW_MEDIA_BUCKET
         self.queue_url = config.SQS_QUEUE_URL
+    
+    def _apply_tenant_configuration(self, tenant_id: str, record_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Apply tenant-specific configuration to processing record
+        
+        Args:
+            tenant_id: Tenant identifier
+            record_data: Processing record data
+            
+        Returns:
+            Updated record data with tenant configuration
+        """
+        try:
+            tenant_config = tenant_service.get_tenant_configuration(tenant_id)
+            if tenant_config:
+                # Add tenant-specific metadata
+                record_data['tenant_config'] = {
+                    'default_language': tenant_config.default_language,
+                    'cultural_kb_id': tenant_config.cultural_kb_id,
+                    'ondc_seller_id': tenant_config.ondc_seller_id,
+                    'ondc_bpp_id': tenant_config.ondc_bpp_id
+                }
+            return record_data
+        except Exception as e:
+            logger.warning(f"Could not apply tenant configuration: {str(e)}")
+            return record_data
     
     @tracer.capture_method
     def initiate_upload(self, tenant_id: str, artisan_id: str, content_type: str) -> Dict[str, Any]:
@@ -236,6 +263,12 @@ class UploadHandler:
                 raise ValueError(f"Tracking ID {tracking_id} not found")
             
             record_data = response['Item']
+            
+            # Apply tenant-specific configuration
+            record_data = self._apply_tenant_configuration(
+                record_data.get('tenant_id', ''),
+                record_data
+            )
             
             # Update record with media keys and language
             update_expression = "SET updated_at = :updated_at, #lang = :language"

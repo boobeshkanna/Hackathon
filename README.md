@@ -2,6 +2,19 @@
 
 A Zero-UI Edge-Native AI Application that enables vernacular artisans in rural India to catalog products on ONDC through simple photo and voice capture.
 
+## 🚀 Quick Start
+
+**⚠️ CURRENT STATUS:** Payment method required for Bedrock access
+- **[CURRENT_STATUS.md](CURRENT_STATUS.md)** - What you need to do right now
+- **[PAYMENT_SETUP_QUICK.md](PAYMENT_SETUP_QUICK.md)** - Fix payment issue (5 minutes)
+
+**After adding payment method:**
+- **[START_HERE.md](START_HERE.md)** - Get up and running
+- **[BEDROCK_FIX_SUMMARY.md](BEDROCK_FIX_SUMMARY.md)** - Recent Bedrock error fix
+- **[QUICKSTART_AI_STACK.md](QUICKSTART_AI_STACK.md)** - AI stack usage guide
+
+**Quick test:** Run `python test_bedrock_simple.py` to verify your setup
+
 ## Problem Statement
 
 Rural artisans face "Cataloging Paralysis" - the mismatch between high-context vernacular storytelling and low-context structured digital schemas required by ONDC. This system bridges that gap.

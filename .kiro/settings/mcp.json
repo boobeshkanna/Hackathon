@@ -9,7 +9,7 @@
         "FASTMCP_LOG_LEVEL": "ERROR"
       },
       "autoApprove": [],
-      "disabled": false
+      "disabled": true
     }
   }
 }

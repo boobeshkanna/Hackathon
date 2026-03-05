@@ -25,6 +25,13 @@ from backend.models.response import (
 )
 from backend.models.catalog import ProcessingStatus
 from backend.lambda_functions.api_handlers.upload_handlers import upload_handler
+from backend.lambda_functions.api_handlers.tenant_handlers import tenant_handler
+from backend.lambda_functions.api_handlers.analytics_handlers import analytics_handler
+from backend.lambda_functions.api_handlers.tenant_middleware import require_tenant, require_quota
+from backend.lambda_functions.api_handlers.data_minimization import (
+    sanitize_request_headers,
+    sanitize_request_body
+)
 
 # Initialize
 logger = Logger()
@@ -424,6 +431,127 @@ def list_catalogs() -> Dict[str, Any]:
         }
 
 
+# ============================================================================
+# Tenant Management Endpoints
+# ============================================================================
+
+@app.get("/v1/tenant/<tenant_id>")
+@tracer.capture_method
+def get_tenant(tenant_id: str) -> Dict[str, Any]:
+    """Get tenant configuration"""
+    return tenant_handler.get_tenant_configuration(tenant_id)
+
+
+@app.post("/v1/tenant")
+@tracer.capture_method
+def create_tenant() -> Dict[str, Any]:
+    """Create new tenant configuration"""
+    try:
+        request_data = app.current_event.json_body
+        return tenant_handler.create_tenant_configuration(request_data)
+    except Exception as e:
+        logger.error(f"Error creating tenant: {str(e)}", exc_info=True)
+        return {"statusCode": 500, "body": json.dumps({"error": "InternalServerError"})}
+
+
+@app.put("/v1/tenant/<tenant_id>")
+@tracer.capture_method
+def update_tenant(tenant_id: str) -> Dict[str, Any]:
+    """Update tenant configuration"""
+    try:
+        request_data = app.current_event.json_body
+        return tenant_handler.update_tenant_configuration(tenant_id, request_data)
+    except Exception as e:
+        logger.error(f"Error updating tenant: {str(e)}", exc_info=True)
+        return {"statusCode": 500, "body": json.dumps({"error": "InternalServerError"})}
+
+
+@app.get("/v1/tenant/<tenant_id>/quota")
+@tracer.capture_method
+def get_tenant_quota(tenant_id: str) -> Dict[str, Any]:
+    """Get tenant quota status"""
+    return tenant_handler.get_tenant_quota_status(tenant_id)
+
+
+@app.get("/v1/tenant/<tenant_id>/catalogs")
+@tracer.capture_method
+def get_tenant_catalogs(tenant_id: str) -> Dict[str, Any]:
+    """Get catalog entries for a tenant"""
+    try:
+        query_params = app.current_event.query_string_parameters or {}
+        limit = int(query_params.get('limit', 100))
+        next_token = query_params.get('next_token')
+        return tenant_handler.get_tenant_catalogs(tenant_id, limit, next_token)
+    except Exception as e:
+        logger.error(f"Error fetching tenant catalogs: {str(e)}", exc_info=True)
+        return {"statusCode": 500, "body": json.dumps({"error": "InternalServerError"})}
+
+
+# ============================================================================
+# Tenant Analytics Endpoints
+# ============================================================================
+
+@app.get("/v1/tenant/<tenant_id>/dashboard")
+@tracer.capture_method
+def get_tenant_dashboard(tenant_id: str) -> Dict[str, Any]:
+    """Get comprehensive dashboard data for a tenant"""
+    return analytics_handler.get_tenant_dashboard(tenant_id)
+
+
+@app.get("/v1/tenant/<tenant_id>/metrics")
+@tracer.capture_method
+def get_tenant_metrics(tenant_id: str) -> Dict[str, Any]:
+    """Get aggregated metrics for a tenant"""
+    try:
+        query_params = app.current_event.query_string_parameters or {}
+        start_date = query_params.get('start_date')
+        end_date = query_params.get('end_date')
+        return analytics_handler.get_tenant_metrics(tenant_id, start_date, end_date)
+    except Exception as e:
+        logger.error(f"Error fetching metrics: {str(e)}", exc_info=True)
+        return {"statusCode": 500, "body": json.dumps({"error": "InternalServerError"})}
+
+
+@app.get("/v1/tenant/<tenant_id>/metrics/daily")
+@tracer.capture_method
+def get_daily_metrics(tenant_id: str) -> Dict[str, Any]:
+    """Get daily metrics for a tenant"""
+    try:
+        query_params = app.current_event.query_string_parameters or {}
+        days = int(query_params.get('days', 30))
+        return analytics_handler.get_daily_metrics(tenant_id, days)
+    except Exception as e:
+        logger.error(f"Error fetching daily metrics: {str(e)}", exc_info=True)
+        return {"statusCode": 500, "body": json.dumps({"error": "InternalServerError"})}
+
+
+@app.get("/v1/tenant/<tenant_id>/distribution/language")
+@tracer.capture_method
+def get_language_distribution(tenant_id: str) -> Dict[str, Any]:
+    """Get language distribution for a tenant"""
+    return analytics_handler.get_language_distribution(tenant_id)
+
+
+@app.get("/v1/tenant/<tenant_id>/distribution/category")
+@tracer.capture_method
+def get_category_distribution(tenant_id: str) -> Dict[str, Any]:
+    """Get category distribution for a tenant"""
+    return analytics_handler.get_category_distribution(tenant_id)
+
+
+@app.get("/v1/tenant/<tenant_id>/errors")
+@tracer.capture_method
+def get_error_analysis(tenant_id: str) -> Dict[str, Any]:
+    """Get error analysis for a tenant"""
+    try:
+        query_params = app.current_event.query_string_parameters or {}
+        days = int(query_params.get('days', 7))
+        return analytics_handler.get_error_analysis(tenant_id, days)
+    except Exception as e:
+        logger.error(f"Error fetching error analysis: {str(e)}", exc_info=True)
+        return {"statusCode": 500, "body": json.dumps({"error": "InternalServerError"})}
+
+
 @logger.inject_lambda_context
 @tracer.capture_lambda_handler
 def handler(event: Dict[str, Any], context: LambdaContext) -> Dict[str, Any]:
@@ -434,5 +562,24 @@ def handler(event: Dict[str, Any], context: LambdaContext) -> Dict[str, Any]:
     - Structured logging
     - Distributed tracing with X-Ray
     - API Gateway event parsing
+    
+    Implements data minimization (Requirement 12.1):
+    - Removes location data and device identifiers from headers
+    - Sanitizes request body to remove sensitive fields
     """
+    # Apply data minimization to headers (Requirement 12.1)
+    if 'headers' in event:
+        original_headers = event['headers']
+        event['headers'] = sanitize_request_headers(original_headers)
+    
+    # Apply data minimization to body if present
+    if 'body' in event and event['body']:
+        try:
+            body = json.loads(event['body'])
+            sanitized_body = sanitize_request_body(body)
+            event['body'] = json.dumps(sanitized_body)
+        except json.JSONDecodeError:
+            # If body is not JSON, leave it as is
+            pass
+    
     return app.resolve(event, context)

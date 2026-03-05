@@ -2,7 +2,7 @@
 Unit tests for new data models (Task 2.2)
 """
 import pytest
-from datetime import datetime
+from datetime import datetime, timezone
 from backend.models import (
     # Core models
     LocalQueueEntry,
@@ -289,7 +289,7 @@ class TestResponseModels:
         response = UploadResponse(
             tracking_id="trk_abc123",
             upload_url="https://s3.amazonaws.com/bucket/path",
-            expires_at=datetime.utcnow()
+            expires_at=datetime.now(timezone.utc)
         )
         
         assert response.tracking_id == "trk_abc123"

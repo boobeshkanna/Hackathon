@@ -2,7 +2,41 @@
 
 This guide will help you get the Vernacular Artisan Catalog project up and running.
 
-## Step 1: Set Up Python Environment
+## Step 1: Install System Dependencies
+
+The audio compression module requires ffmpeg to be installed on your system.
+
+### Linux (Ubuntu/Debian)
+
+```bash
+sudo apt update
+sudo apt install -y ffmpeg
+```
+
+### Linux (Fedora/RHEL/CentOS)
+
+```bash
+sudo dnf install -y ffmpeg
+```
+
+### macOS
+
+```bash
+brew install ffmpeg
+```
+
+### Windows
+
+Download ffmpeg from [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html) and add it to your PATH.
+
+### Verify Installation
+
+```bash
+ffmpeg -version
+ffprobe -version
+```
+
+## Step 2: Set Up Python Environment
 
 ```bash
 # Create virtual environment
@@ -15,7 +49,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Step 2: Configure Environment Variables
+## Step 3: Configure Environment Variables
 
 ```bash
 # Copy the example file
@@ -28,7 +62,7 @@ cp .env.example .env
 # - ONDC API credentials
 ```
 
-## Step 3: Configure AWS CLI
+## Step 4: Configure AWS CLI
 
 ```bash
 aws configure
@@ -40,7 +74,7 @@ Enter:
 - Default region: `ap-south-1`
 - Default output format: `json`
 
-## Step 4: Verify Setup
+## Step 5: Verify Setup
 
 ```bash
 # Check Python version (should be 3.11+)
