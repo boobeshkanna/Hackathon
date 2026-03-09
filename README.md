@@ -253,7 +253,7 @@ MIT License - see [LICENSE](LICENSE) file
 
 ## 🏆 Hackathon Submission
 
-This project was built for [Hackathon Name].
+This project was built for AI for Bharat Hackathon.
 
 **Team:** Emergent Edge
 
