@@ -102,8 +102,8 @@ Mobile App (React Native) → API Gateway → Lambda Functions
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/vernacular-artisan-catalog.git
-cd vernacular-artisan-catalog
+git clone https://github.com/boobeshkanna/Hackathon.git
+cd Hackathon
 ```
 
 ### 2. Configure AWS
@@ -173,17 +173,16 @@ npm run android
 
 ## 🎬 Demo
 
-[Watch Demo Video](YOUR_YOUTUBE_LINK)
+[Watch Demo Video](https://drive.google.com/file/d/1v-A8ibgXdqAteWW_OFMlPAJ7PyIZV96b/view?usp=drive_link)
 
 **Screenshots:**
 
 | Mobile App | AI Processing | Dashboard |
 |------------|---------------|-----------|
-| ![App](docs/images/app.png) | ![AI](docs/images/ai.png) | ![Dashboard](docs/images/dashboard.png) |
+| ![App](image-2.png) | ![AI](image.png) | ![Dashboard](image-1.png) |
 
 ## 📖 Documentation
 
-- [Deployment Guide](DEPLOYMENT_GUIDE.md) - Complete deployment instructions
 - [API Documentation](docs/API_DOCUMENTATION.md) - API reference
 - [Architecture](docs/ARCHITECTURE.md) - System design
 - [Mobile App](mobile/README.md) - Mobile app documentation
@@ -248,10 +247,6 @@ python backend/test_ai_stack.py
 - [ ] Sales analytics
 - [ ] Multi-platform integration (Amazon, Flipkart)
 
-## 🤝 Contributing
-
-Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
-
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) file
@@ -260,18 +255,17 @@ MIT License - see [LICENSE](LICENSE) file
 
 This project was built for [Hackathon Name].
 
-**Team:** [Your Team Name]
+**Team:** Emergent Edge
 
 **Links:**
-- [Demo Video](YOUR_YOUTUBE_LINK)
-- [Presentation](YOUR_PPT_LINK)
-- [Live MVP](YOUR_MVP_LINK)
+- [Demo Video](https://drive.google.com/drive/folders/1A_T0Mibo_pXlA_Po074nxYqAvhQyfsSs?usp=sharing)
+- [Presentation](https://storage.googleapis.com/vision-hack2skill-production/innovator/USER01431884/1773080172128-PrototypeDevelopmentSubmissionAWSAIforBharatHackathon.pdf)
+- [Live MVP](https://artisan-catalogue.onrender.com/)
 
 ## 📞 Contact
 
-- **Email**: your-email@example.com
-- **LinkedIn**: [Your Profile](https://linkedin.com/in/yourprofile)
-- **Twitter**: [@yourhandle](https://twitter.com/yourhandle)
+- **Email**: [Contact](mailmeshankz@gmail.com)
+- **LinkedIn**: [Profile](https://www.linkedin.com/in/shankarpoun/)
 
 ## 🙏 Acknowledgments
 
