@@ -6,7 +6,7 @@ import logging
 from typing import Dict, Any, Optional, List
 import boto3
 from botocore.exceptions import ClientError
-from backend.models import ExtractedAttributes, CSI
+from models import ExtractedAttributes, CSI
 
 logger = logging.getLogger(__name__)
 

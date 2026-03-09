@@ -51,3 +51,6 @@ export interface UploadProgress {
   totalBytes: number;
   percentage: number;
 }
+
+// Re-export catalog types
+export * from './catalog';

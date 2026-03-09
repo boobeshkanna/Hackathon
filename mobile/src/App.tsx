@@ -1,14 +1,18 @@
 import React, { useEffect } from 'react';
+import { Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { database } from './database/schema';
 import { backgroundSyncService } from './services/BackgroundSync';
 import { notificationService } from './services/NotificationService';
 import { CaptureScreen } from './screens/CaptureScreen';
 import { QueueScreen } from './screens/QueueScreen';
 import { BulkCaptureScreen } from './screens/BulkCaptureScreen';
+import { ReviewScreen } from './screens/ReviewScreen';
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 /**
  * Main App Component
@@ -56,46 +60,68 @@ export default function App() {
     }
   };
 
+  /**
+   * Main Tab Navigator
+   */
+  const MainTabs = () => (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: true,
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: '#8E8E93',
+      }}
+    >
+      <Tab.Screen
+        name="Capture"
+        component={CaptureScreen}
+        options={{
+          tabBarLabel: 'Capture',
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ fontSize: size, color }}>📷</Text>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Queue"
+        component={QueueScreen}
+        options={{
+          tabBarLabel: 'Queue',
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ fontSize: size, color }}>📋</Text>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Bulk"
+        component={BulkCaptureScreen}
+        options={{
+          tabBarLabel: 'Bulk',
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ fontSize: size, color }}>📦</Text>
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+
   return (
     <NavigationContainer>
-      <Tab.Navigator
+      <Stack.Navigator
         screenOptions={{
-          headerShown: true,
-          tabBarActiveTintColor: '#007AFF',
-          tabBarInactiveTintColor: '#8E8E93',
+          headerShown: false,
         }}
       >
-        <Tab.Screen
-          name="Capture"
-          component={CaptureScreen}
+        <Stack.Screen name="MainTabs" component={MainTabs} />
+        <Stack.Screen 
+          name="Review" 
+          component={ReviewScreen as any}
           options={{
-            tabBarLabel: 'Capture',
-            tabBarIcon: ({ color, size }) => (
-              <Text style={{ fontSize: size, color }}>📷</Text>
-            ),
+            headerShown: true,
+            title: 'Review & Publish',
+            headerBackTitle: 'Back',
           }}
         />
-        <Tab.Screen
-          name="Queue"
-          component={QueueScreen}
-          options={{
-            tabBarLabel: 'Queue',
-            tabBarIcon: ({ color, size }) => (
-              <Text style={{ fontSize: size, color }}>📋</Text>
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Bulk"
-          component={BulkCaptureScreen}
-          options={{
-            tabBarLabel: 'Bulk',
-            tabBarIcon: ({ color, size }) => (
-              <Text style={{ fontSize: size, color }}>📦</Text>
-            ),
-          }}
-        />
-      </Tab.Navigator>
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }

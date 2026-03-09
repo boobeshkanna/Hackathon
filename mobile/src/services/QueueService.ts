@@ -1,5 +1,6 @@
 import { database } from '../database/schema';
 import { LocalQueueEntry, QueueStatus, CaptureResult } from '../types';
+// @ts-ignore - react-native-uuid has different export structure
 import { v4 as uuidv4 } from 'react-native-uuid';
 
 /**

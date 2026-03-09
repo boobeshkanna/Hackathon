@@ -1,10 +1,15 @@
 export const API_CONFIG = {
-  BASE_URL: process.env.API_BASE_URL || 'https://api.example.com',
+  BASE_URL:'https://your-api-gateway-url.com',
   UPLOAD_INITIATE_ENDPOINT: '/v1/catalog/upload/initiate',
   UPLOAD_COMPLETE_ENDPOINT: '/v1/catalog/upload/complete',
   STATUS_ENDPOINT: '/v1/catalog/status',
+  CATALOG_GET_ENDPOINT: '/v1/catalog',
+  CATALOG_PUBLISH_ENDPOINT: '/v1/catalog/publish',
   TIMEOUT: 30000, // 30 seconds
 };
+
+// Export base URL for convenience
+export const API_BASE_URL = API_CONFIG.BASE_URL;
 
 export const COMPRESSION_CONFIG = {
   IMAGE: {

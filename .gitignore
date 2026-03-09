@@ -1,12 +1,14 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-venv/
-env/
-ENV/
 build/
 develop-eggs/
 dist/
@@ -22,15 +24,21 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
+.pytest_cache/
+.coverage
+htmlcov/
 
-# Environment variables
-.env
-.env.local
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
 
-# AWS
-.aws-sam/
+# CDK
 cdk.out/
-*.zip
+.cdk.staging/
 
 # IDE
 .vscode/
@@ -38,17 +46,62 @@ cdk.out/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
-Thumbs.db
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
+# AWS
+.aws-sam/
+
+# Mobile
+mobile/android/app/build/
+mobile/android/.gradle/
+mobile/ios/Pods/
+mobile/ios/build/
 
 # Logs
 *.log
 logs/
+
+# Temporary files
+*.tmp
+*.bak
+*.old
+README_OLD.md
+
+# Large files
+*.zip
+*.tar.gz
+awscliv2.zip
+
+# Test files
+test_bedrock_access.sh
+
+# Documentation and guides (moved to docs/)
+docs/guides/
+docs/hackathon/
+docs/setup/
+START_HERE.md
+START_RECORDING.txt
+SAMPLE_HINDI_DESCRIPTIONS.md
+*_GUIDE.md
+*_SUMMARY.md
+*_SUMMARY.txt
+QUICK_*.md
+QUICKSTART_*.md
+DEMO_*.md
+DEPLOYMENT_*.md
+HACKATHON_*.md
+IMPLEMENTATION_*.md
+CATALOG_*.md
+VIDEO_*.md
+RECORD_*.md
+READY_*.txt
+TEST_*.md
+WORKING_*.md
+SUBMISSION_*.md
+PROJECT_SUMMARY.md
+PPT_OUTLINE.md
+FINAL_*.md
+GET_*.md
+GITHUB_README.md
+RUN_*.md
+*.pptx

@@ -4,8 +4,8 @@ Lambda Workflow Orchestrator - Main SQS Event Handler
 This Lambda function orchestrates the entire AI processing pipeline:
 1. Consumes SQS messages with catalog processing requests
 2. Fetches raw media from S3
-3. Calls Sagemaker for Vision + ASR
-4. Calls Bedrock for transcreation and attribute extraction
+3. Calls AWS Rekognition for Vision + AWS Transcribe for ASR
+4. Calls Groq (replacing Bedrock) for transcreation and attribute extraction
 5. Enhances images and saves to S3
 6. Maps to ONDC schema and validates
 7. Submits to ONDC Gateway
@@ -33,9 +33,11 @@ from backend.models.catalog import (
 
 # Import services
 from backend.services.ai_orchestrator import AIOrchestrator
-from backend.services.bedrock_client.client import BedrockClient
-from backend.services.bedrock_client.attribute_extractor import AttributeExtractor
-from backend.services.bedrock_client.transcreation_service import TranscreationService
+# COMMENTED: Bedrock-specific services (replaced by Groq)
+# from backend.services.bedrock_client.client import BedrockClient
+# from backend.services.bedrock_client.attribute_extractor import AttributeExtractor
+# from backend.services.bedrock_client.transcreation_service import TranscreationService
+from backend.services.bedrock_client.unified_client import UnifiedBedrockClient  # Using Groq
 from backend.services.media_processing import image_enhancement
 from backend.services.ondc_gateway.gateway import ONDCGateway
 from backend.services.ondc_gateway.api_client import ONDCAPIClient
@@ -45,7 +47,7 @@ from backend.lambda_functions.shared.config import config
 from backend.lambda_functions.shared.logger import setup_logger
 from backend.lambda_functions.api_handlers.data_minimization import (
     filter_pii_from_text,
-    create_bedrock_pii_filtering_prompt,
+    create_bedrock_pii_filtering_prompt,  # Still useful for prompt structure
     validate_no_pii_in_output
 )
 
@@ -68,9 +70,11 @@ sqs_client = boto3.client('sqs', region_name=config.AWS_REGION)
 
 # Initialize service clients (reused across invocations)
 ai_orchestrator = None
-bedrock_client = None
-attribute_extractor = None
-transcreation_service = None
+# COMMENTED: Bedrock-specific clients
+# bedrock_client = None
+# attribute_extractor = None
+# transcreation_service = None
+unified_client = None  # Using Groq-based unified client
 ondc_gateway = None
 metrics_service = None
 tracing_service = None
@@ -109,35 +113,47 @@ def get_ai_orchestrator() -> AIOrchestrator:
     return ai_orchestrator
 
 
-def get_bedrock_client() -> BedrockClient:
-    """Get or create Bedrock client (singleton)"""
-    global bedrock_client
-    if bedrock_client is None:
-        bedrock_client = BedrockClient(
-            model_id=config.BEDROCK_MODEL_ID,
-            region=config.AWS_REGION
+# COMMENTED: Bedrock-specific client getters (replaced by unified client)
+# def get_bedrock_client() -> BedrockClient:
+#     """Get or create Bedrock client (singleton)"""
+#     global bedrock_client
+#     if bedrock_client is None:
+#         bedrock_client = BedrockClient(
+#             model_id=config.BEDROCK_MODEL_ID,
+#             region=config.AWS_REGION
+#         )
+#     return bedrock_client
+
+
+# def get_attribute_extractor() -> AttributeExtractor:
+#     """Get or create Attribute Extractor (singleton)"""
+#     global attribute_extractor
+#     if attribute_extractor is None:
+#         attribute_extractor = AttributeExtractor(
+#             bedrock_client=get_bedrock_client()
+#         )
+#     return attribute_extractor
+
+
+# def get_transcreation_service() -> TranscreationService:
+#     """Get or create Transcreation Service (singleton)"""
+#     global transcreation_service
+#     if transcreation_service is None:
+#         transcreation_service = TranscreationService(
+#             bedrock_client=get_bedrock_client()
+#         )
+#     return transcreation_service
+
+
+def get_unified_client() -> UnifiedBedrockClient:
+    """Get or create Unified AI client (singleton) - Using Groq"""
+    global unified_client
+    if unified_client is None:
+        from services.ai_client import AIProvider
+        unified_client = UnifiedBedrockClient(
+            preferred_provider=AIProvider.GROQ
         )
-    return bedrock_client
-
-
-def get_attribute_extractor() -> AttributeExtractor:
-    """Get or create Attribute Extractor (singleton)"""
-    global attribute_extractor
-    if attribute_extractor is None:
-        attribute_extractor = AttributeExtractor(
-            bedrock_client=get_bedrock_client()
-        )
-    return attribute_extractor
-
-
-def get_transcreation_service() -> TranscreationService:
-    """Get or create Transcreation Service (singleton)"""
-    global transcreation_service
-    if transcreation_service is None:
-        transcreation_service = TranscreationService(
-            bedrock_client=get_bedrock_client()
-        )
-    return transcreation_service
+    return unified_client
 
 
 def get_ondc_gateway() -> ONDCGateway:

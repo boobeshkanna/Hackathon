@@ -1,3 +1,4 @@
+// @ts-ignore - No type definitions available
 import SQLite from 'react-native-sqlite-storage';
 
 SQLite.enablePromise(true);

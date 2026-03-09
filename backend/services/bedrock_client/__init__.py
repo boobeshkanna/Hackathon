@@ -1,11 +1,22 @@
 """
-Amazon Bedrock Client Services
+Amazon Bedrock Client Services (DEPRECATED - Using Groq instead)
 
-Uses Claude models via Bedrock for AI tasks:
-- Claude 3.5 Sonnet: Complex vision analysis and reasoning
-- Claude 3 Haiku: Cost-effective catalog generation
+COMMENTED OUT: Bedrock-based services
+- BedrockVisionAnalyzer: Replaced by UnifiedVisionAnalyzer (Groq)
+- BedrockCatalogGenerator: Replaced by UnifiedCatalogGenerator (Groq)
+
+NEW: Unified AI services with Groq support
 """
-from .vision_analyzer import BedrockVisionAnalyzer
-from .catalog_generator import BedrockCatalogGenerator
+# COMMENTED: Bedrock-specific implementations
+# from .vision_analyzer import BedrockVisionAnalyzer
+# from .catalog_generator import BedrockCatalogGenerator
 
-__all__ = ['BedrockVisionAnalyzer', 'BedrockCatalogGenerator']
+# NEW: Unified implementations using Groq
+from .unified_vision_analyzer import UnifiedVisionAnalyzer
+from .unified_catalog_generator import UnifiedCatalogGenerator
+
+# Keep old imports for backward compatibility (but they use Groq now)
+# __all__ = ['BedrockVisionAnalyzer', 'BedrockCatalogGenerator']
+
+# New exports
+__all__ = ['UnifiedVisionAnalyzer', 'UnifiedCatalogGenerator']

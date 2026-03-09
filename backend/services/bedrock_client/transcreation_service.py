@@ -3,8 +3,8 @@ Transcreation service for cultural preservation and SEO-friendly descriptions
 """
 import logging
 from typing import Dict, Any, Optional
-from backend.models import ExtractedAttributes, ONDCCatalogItem, ItemDescriptor, Price
-from backend.services.bedrock_client.client import BedrockClient
+from models import ExtractedAttributes, ONDCCatalogItem, ItemDescriptor, Price
+from services.bedrock_client.client import BedrockClient
 
 logger = logging.getLogger(__name__)
 

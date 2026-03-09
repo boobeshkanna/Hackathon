@@ -206,6 +206,7 @@ export class UploadService {
     }
     
     const byteArray = new Uint8Array(byteNumbers);
+    // @ts-ignore - Blob constructor accepts Uint8Array
     return new Blob([byteArray]);
   }
 }

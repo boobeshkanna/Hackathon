@@ -3,8 +3,8 @@ Attribute extraction service with voice priority resolution
 """
 import logging
 from typing import Dict, Any, List, Optional
-from backend.models import ExtractedAttributes, CSI
-from backend.services.bedrock_client.client import BedrockClient
+from models import ExtractedAttributes, CSI
+from services.bedrock_client.client import BedrockClient
 
 logger = logging.getLogger(__name__)
 

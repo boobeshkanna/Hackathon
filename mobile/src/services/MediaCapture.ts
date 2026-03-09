@@ -108,6 +108,7 @@ export class MediaCaptureService {
       await this.ensureDirectoryExists(`${RNFS.DocumentDirectoryPath}/${STORAGE_CONFIG.MEDIA_DIR}`);
 
       await this.audioRecorder.startRecorder(recordingPath, {
+        // @ts-ignore - SampleRate is valid but not in type definition
         SampleRate: COMPRESSION_CONFIG.AUDIO.SAMPLE_RATE,
         Channels: COMPRESSION_CONFIG.AUDIO.CHANNELS,
         AudioQuality: 'Low', // Low quality for smaller file size

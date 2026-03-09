@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "649147511860",
+    "project_id": "kathacart",
+    "storage_bucket": "kathacart.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:649147511860:android:45313e6598bb00b1370661",
+        "android_client_info": {
+          "package_name": "com.vernacularartisancatalog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBr2hbuKc7xrawF7CufCH2hhZRbS5DZThY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

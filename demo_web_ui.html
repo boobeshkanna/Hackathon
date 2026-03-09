@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vernacular Artisan Catalog - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            background: #f8f9ff;
+            border-color: #764ba2;
+        }
+        
+        .upload-area.dragover {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .results h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .result-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .result-value {
+            color: #333;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .badge-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Vernacular Artisan Catalog</h1>
+        <p class="subtitle">AI-powered product cataloging for Indian artisans</p>
+        
+        <div id="status" class="status" style="display: none;"></div>
+        
+        <div class="upload-area" id="uploadArea">
+            <h3>📸 Upload Product Image</h3>
+            <p>Click or drag & drop an image here</p>
+            <input type="file" id="imageInput" accept="image/*">
+        </div>
+        
+        <img id="preview" class="preview-image" style="display: none;">
+        
+        <div class="form-group">
+            <label for="transcription">🎤 Voice Transcription (Optional)</label>
+            <textarea 
+                id="transcription" 
+                placeholder="Enter product description in Hindi, Telugu, Tamil, etc.&#10;Example: यह बनारसी साड़ी है, हाथ से बुनी हुई"
+            ></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="language">🌐 Language</label>
+            <select id="language">
+                <option value="hi">Hindi (हिंदी)</option>
+                <option value="te">Telugu (తెలుగు)</option>
+                <option value="ta">Tamil (தமிழ்)</option>
+                <option value="bn">Bengali (বাংলা)</option>
+                <option value="mr">Marathi (मराठी)</option>
+                <option value="gu">Gujarati (ગુજરાતી)</option>
+                <option value="kn">Kannada (ಕನ್ನಡ)</option>
+                <option value="ml">Malayalam (മലയാളം)</option>
+            </select>
+        </div>
+        
+        <button id="processBtn" onclick="processProduct()">
+            🚀 Analyze Product
+        </button>
+        
+        <div id="results" class="results" style="display: none;">
+            <h3>📊 Analysis Results</h3>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+        let selectedFile = null;
+        
+        // Upload area interactions
+        const uploadArea = document.getElementById('uploadArea');
+        const imageInput = document.getElementById('imageInput');
+        const preview = document.getElementById('preview');
+        
+        uploadArea.addEventListener('click', () => imageInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleFile(file);
+            }
+        });
+        
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+        
+        function handleFile(file) {
+            selectedFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            showStatus('Image loaded: ' + file.name, 'success');
+        }
+        
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+            status.style.display = 'block';
+        }
+        
+        async function processProduct() {
+            if (!selectedFile) {
+                showStatus('Please upload an image first', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('processBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Processing...';
+            
+            showStatus('Analyzing product with AI...', 'loading');
+            
+            try {
+                const formData = new FormData();
+                formData.append('image', selectedFile);
+                formData.append('transcription', document.getElementById('transcription').value);
+                formData.append('language', document.getElementById('language').value);
+                
+                const response = await fetch(`${API_BASE}/process-product`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+                
+                const data = await response.json();
+                displayResults(data);
+                showStatus('✅ Analysis complete!', 'success');
+                
+            } catch (error) {
+                showStatus('❌ Error: ' + error.message, 'error');
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🚀 Analyze Product';
+            }
+        }
+        
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            const contentDiv = document.getElementById('resultsContent');
+            
+            let html = '';
+            
+            // Vision Analysis
+            if (data.vision_analysis) {
+                const vision = data.vision_analysis;
+                html += `
+                    <div class="result-item">
+                        <div class="result-label">Category</div>
+                        <div class="result-value">${vision.category || 'Unknown'}</div>
+                    </div>
+                `;
+                
+                if (vision.materials && vision.materials.length > 0) {
+                    html += `
+                        <div class="result-item">
+                            <div class="result-label">Materials</div>
+                            <div class="result-value">
+                                ${vision.materials.map(m => `<span class="badge badge-primary">${m}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (vision.colors) {
+                    html += `
+                        <div class="result-item">
+                            <div class="result-label">Colors</div>
+                            <div class="result-value">
+                                ${(vision.colors.primary || []).map(c => `<span class="badge badge-success">${c}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Descriptions
+            if (data.descriptions) {
+                html += `
+                    <div class="result-item">
+                        <div class="result-label">Description</div>
+                        <div class="result-value">${data.descriptions.short_description}</div>
+                    </div>
+                `;
+            }
+            
+            // CSI Terms
+            if (data.csi_terms && data.csi_terms.length > 0) {
+                html += `
+                    <div class="result-item">
+                        <div class="result-label">Cultural Terms (CSI)</div>
+                        <div class="result-value">
+                            ${data.csi_terms.map(csi => 
+                                `<span class="badge badge-primary" title="${csi.english_context}">${csi.vernacular_term}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Providers
+            if (data.providers_available) {
+                html += `
+                    <div class="result-item">
+                        <div class="result-label">AI Providers Used</div>
+                        <div class="result-value">
+                            ${data.providers_available.map(p => `<span class="badge badge-success">${p}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            contentDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+        
+        // Check API health on load
+        fetch(`${API_BASE.replace('/api', '')}/health`)
+            .then(r => r.json())
+            .then(data => {
+                const providers = data.ai_providers.available.join(', ');
+                showStatus(`✅ Connected to API | Providers: ${providers}`, 'success');
+            })
+            .catch(() => {
+                showStatus('⚠️ API not running. Start server: python backend/lambda_functions/api_handlers/local_demo_server.py', 'error');
+            });
+    </script>
+</body>
+</html>

@@ -2,16 +2,18 @@
 AI Services Orchestrator
 
 Coordinates all AI services for complete product processing:
-- Rekognition Custom Labels: Product detection
-- Claude 3.5 Sonnet: Vision analysis
-- AWS Transcribe: Audio transcription
-- Claude 3 Haiku: Catalog generation
+- Rekognition Custom Labels: Product detection (AWS)
+- Groq: Vision analysis (replacing Bedrock)
+- AWS Transcribe: Audio transcription (AWS)
+- Groq: Catalog generation (replacing Bedrock)
 """
 import logging
 from typing import Dict, Any, Optional
 from .rekognition_custom import RekognitionProductDetector
-from .bedrock_client import BedrockVisionAnalyzer, BedrockCatalogGenerator
+# from .bedrock_client import BedrockVisionAnalyzer, BedrockCatalogGenerator  # COMMENTED: Using Groq instead
+from .bedrock_client import UnifiedVisionAnalyzer, UnifiedCatalogGenerator  # Using unified client with Groq
 from .aws_ai_services import TranscriptionService
+from services.ai_client import AIProvider
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +26,7 @@ class AIOrchestrator:
             region: str = 'ap-south-1',
             rekognition_project_arn: Optional[str] = None,
             transcribe_s3_bucket: Optional[str] = None,
-            bedrock_model_id: Optional[str] = None
+            bedrock_model_id: Optional[str] = None  # DEPRECATED: Using Groq instead
         ):
             """
             Initialize AI orchestrator
@@ -33,20 +35,27 @@ class AIOrchestrator:
                 region: AWS region
                 rekognition_project_arn: Custom Labels project ARN
                 transcribe_s3_bucket: S3 bucket for Transcribe temp storage
-                bedrock_model_id: Bedrock model ID (defaults to env var BEDROCK_MODEL_ID)
+                bedrock_model_id: DEPRECATED - Using Groq instead of Bedrock
             """
             self.region = region
 
-            # Initialize services
+            # Initialize AWS services (Rekognition)
             self.product_detector = RekognitionProductDetector(
                 project_arn=rekognition_project_arn,
                 region=region
             )
 
-            self.vision_analyzer = BedrockVisionAnalyzer(region=region, model_id=bedrock_model_id)
+            # COMMENTED: Bedrock-based vision analyzer
+            # self.vision_analyzer = BedrockVisionAnalyzer(region=region, model_id=bedrock_model_id)
+            # Using Groq-based unified vision analyzer
+            self.vision_analyzer = UnifiedVisionAnalyzer(preferred_provider=AIProvider.GROQ)
 
-            self.catalog_generator = BedrockCatalogGenerator(region=region, model_id=bedrock_model_id)
+            # COMMENTED: Bedrock-based catalog generator
+            # self.catalog_generator = BedrockCatalogGenerator(region=region, model_id=bedrock_model_id)
+            # Using Groq-based unified catalog generator
+            self.catalog_generator = UnifiedCatalogGenerator(preferred_provider=AIProvider.GROQ)
 
+            # Initialize AWS Transcribe service
             self.transcription_service = TranscriptionService(
                 region=region,
                 s3_bucket=transcribe_s3_bucket
