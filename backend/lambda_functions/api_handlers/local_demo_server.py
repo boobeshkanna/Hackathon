@@ -7,9 +7,11 @@ import sys
 import logging
 from pathlib import Path
 from typing import Dict, Any
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 import uvicorn
 from dotenv import load_dotenv
 
@@ -47,6 +49,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Setup templates
+templates_dir = Path(__file__).parent / "templates"
+templates = Jinja2Templates(directory=str(templates_dir))
+
 # Initialize AI clients
 try:
     vision_analyzer = UnifiedVisionAnalyzer()
@@ -59,15 +65,10 @@ except Exception as e:
     sys.exit(1)
 
 
-@app.get("/")
-async def root():
-    """Health check endpoint"""
-    return {
-        "status": "running",
-        "service": "Vernacular Artisan Catalog Demo API",
-        "providers_available": [p.value for p in vision_analyzer.client.get_available_providers()],
-        "message": "Upload product images and audio to generate catalog entries"
-    }
+@app.get("/", response_class=HTMLResponse)
+async def demo_ui(request: Request):
+    """Demo web interface for uploading images and voice"""
+    return templates.TemplateResponse("demo.html", {"request": request})
 
 
 @app.get("/health")
@@ -85,6 +86,63 @@ async def health_check():
             "anthropic": AIProvider.ANTHROPIC in providers,
             "groq": AIProvider.GROQ in providers
         }
+    }
+
+
+@app.get("/api/status")
+async def api_status():
+    """API status endpoint for JSON response"""
+    return {
+        "status": "running",
+        "service": "Vernacular Artisan Catalog Demo API",
+        "providers_available": [p.value for p in vision_analyzer.client.get_available_providers()],
+        "message": "Upload product images and audio to generate catalog entries"
+    }
+
+# Initialize AI clients
+try:
+    vision_analyzer = UnifiedVisionAnalyzer()
+    bedrock_client = UnifiedBedrockClient()
+    logger.info("✓ AI clients initialized successfully")
+    logger.info(f"Available providers: {vision_analyzer.client.get_available_providers()}")
+except Exception as e:
+    logger.error(f"✗ Failed to initialize AI clients: {e}")
+    logger.error("Please set at least one API key: OPENAI_API_KEY, ANTHROPIC_API_KEY, or GROQ_API_KEY")
+    sys.exit(1)
+
+
+@app.get("/", response_class=HTMLResponse)
+async def demo_ui(request: Request):
+    """Demo web interface for uploading images and voice"""
+    return templates.TemplateResponse("demo.html", {"request": request})
+
+
+@app.get("/health")
+async def health_check():
+    """Detailed health check"""
+    providers = vision_analyzer.client.get_available_providers()
+    
+    return {
+        "status": "healthy",
+        "ai_providers": {
+            "available": [p.value for p in providers],
+            "count": len(providers),
+            "bedrock": AIProvider.BEDROCK in providers,
+            "openai": AIProvider.OPENAI in providers,
+            "anthropic": AIProvider.ANTHROPIC in providers,
+            "groq": AIProvider.GROQ in providers
+        }
+    }
+
+
+@app.get("/api/status")
+async def api_status():
+    """API status endpoint for JSON response"""
+    return {
+        "status": "running",
+        "service": "Vernacular Artisan Catalog Demo API",
+        "providers_available": [p.value for p in vision_analyzer.client.get_available_providers()],
+        "message": "Upload product images and audio to generate catalog entries"
     }
 
 

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vernacular Artisan Catalog - Live Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .demo-section {
+            padding: 40px;
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .result-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .result-item p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .price {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .sample-texts {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .sample-text {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .sample-text:hover {
+            background: #f0f0f0;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .demo-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Vernacular Artisan Catalog</h1>
+            <p>Upload product images and voice descriptions to generate ONDC-compliant catalogs</p>
+        </div>
+
+        <div class="demo-section">
+            <form id="catalogForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="image">📸 Product Image</label>
+                    <div class="upload-area" id="uploadArea">
+                        <div id="uploadText">
+                            <h3>Drop image here or click to browse</h3>
+                            <p>Supports JPG, PNG, WebP (max 10MB)</p>
+                        </div>
+                        <div id="imagePreview" style="display: none;">
+                            <img id="previewImg" style="max-width: 200px; max-height: 200px; border-radius: 10px;">
+                            <p id="fileName"></p>
+                        </div>
+                    </div>
+                    <input type="file" id="image" name="image" accept="image/*" style="display: none;" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="language">🌐 Language</label>
+                    <select class="form-control" id="language" name="language">
+                        <option value="hi">Hindi (हिंदी)</option>
+                        <option value="te">Telugu (తెలుగు)</option>
+                        <option value="ta">Tamil (தமிழ்)</option>
+                        <option value="bn">Bengali (বাংলা)</option>
+                        <option value="mr">Marathi (मराठी)</option>
+                        <option value="gu">Gujarati (ગુજરાતી)</option>
+                        <option value="kn">Kannada (ಕನ್ನಡ)</option>
+                        <option value="ml">Malayalam (മലയാളം)</option>
+                        <option value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
+                        <option value="or">Odia (ଓଡ଼ିଆ)</option>
+                    </select>
+                </div>
+
+                <div class="sample-texts">
+                    <h3>📝 Sample Descriptions (Click to use)</h3>
+                    <div class="sample-text" onclick="useText('यह बनारसी रेशम की साड़ी है। लाल और सोने के रंग में। शुद्ध रेशम से बनी है, सोने की जरी के काम के साथ। हाथ से बुनी हुई है। लंबाई छह मीटर है। कीमत पांच हजार रुपये है।')">
+                        <strong>Banarasi Saree:</strong> यह बनारसी रेशम की साड़ी है। लाल और सोने के रंग में...
+                    </div>
+                    <div class="sample-text" onclick="useText('यह मिट्टी का बर्तन है। हाथ से बनाया हुआ। ऊंचाई बीस सेंटीमीटर है। चौड़ाई पंद्रह सेंटीमीटर है। वजन एक किलो है। कीमत दो सौ रुपये है।')">
+                        <strong>Clay Pottery:</strong> यह मिट्टी का बर्तन है। हाथ से बनाया हुआ...
+                    </div>
+                    <div class="sample-text" onclick="useText('यह चांदी का गहना है। हाथ से बनाया हुआ। वजन पचास ग्राम है। कीमत तीन हजार रुपये है। शादी और त्योहारों के लिए।')">
+                        <strong>Silver Jewelry:</strong> यह चांदी का गहना है। हाथ से बनाया हुआ...
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="transcription">🎤 Voice Description (in your language)</label>
+                    <textarea class="form-control" id="transcription" name="transcription" rows="4" 
+                              placeholder="Describe your product in Hindi or your preferred language..."></textarea>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">
+                    🚀 Generate Catalog
+                </button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your product with AI... This may take 10-15 seconds</p>
+            </div>
+
+            <div class="error" id="error"></div>
+
+            <div class="results" id="results">
+                <h2>📋 Generated Catalog</h2>
+                <div id="catalogResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('image');
+        const form = document.getElementById('catalogForm');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const error = document.getElementById('error');
+
+        // File upload handling
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                showImagePreview(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                showImagePreview(e.target.files[0]);
+            }
+        });
+
+        function showImagePreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('uploadText').style.display = 'none';
+                document.getElementById('imagePreview').style.display = 'block';
+                document.getElementById('previewImg').src = e.target.result;
+                document.getElementById('fileName').textContent = file.name;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function useText(text) {
+            document.getElementById('transcription').value = text;
+        }
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            
+            // Show loading
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            error.style.display = 'none';
+            document.getElementById('submitBtn').disabled = true;
+
+            try {
+                const response = await fetch('/api/process-product', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    throw new Error(data.detail || 'Processing failed');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                error.textContent = 'Error: ' + err.message;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('catalogResults');
+            
+            let html = '';
+
+            // Vision Analysis
+            if (data.vision_analysis) {
+                const vision = data.vision_analysis;
+                html += `
+                    <div class="result-item">
+                        <h3>👁️ Vision Analysis</h3>
+                        <p><strong>Category:</strong> ${vision.category || 'Not detected'}</p>
+                        <p><strong>Materials:</strong> ${vision.materials ? vision.materials.join(', ') : 'Not detected'}</p>
+                        <p><strong>Colors:</strong> ${vision.colors ? Object.values(vision.colors).flat().join(', ') : 'Not detected'}</p>
+                        <p><strong>Confidence:</strong> ${Math.round((vision.confidence || 0) * 100)}%</p>
+                    </div>
+                `;
+            }
+
+            // Attributes
+            if (data.attributes) {
+                const attr = data.attributes;
+                html += `
+                    <div class="result-item">
+                        <h3>📊 Product Attributes</h3>
+                        <p><strong>Category:</strong> ${attr.category}</p>
+                        ${attr.subcategory ? `<p><strong>Subcategory:</strong> ${attr.subcategory}</p>` : ''}
+                        ${attr.material && attr.material.length > 0 ? `<p><strong>Materials:</strong> ${attr.material.join(', ')}</p>` : ''}
+                        ${attr.colors && attr.colors.length > 0 ? `<p><strong>Colors:</strong> ${attr.colors.join(', ')}</p>` : ''}
+                        ${attr.price ? `<p class="price">💰 Price: ₹${attr.price.value} ${attr.price.currency}</p>` : ''}
+                        ${attr.dimensions ? `<p><strong>Dimensions:</strong> ${JSON.stringify(attr.dimensions)}</p>` : ''}
+                        ${attr.weight ? `<p><strong>Weight:</strong> ${attr.weight.value} ${attr.weight.unit}</p>` : ''}
+                    </div>
+                `;
+            }
+
+            // Descriptions
+            if (data.descriptions) {
+                const desc = data.descriptions;
+                html += `
+                    <div class="result-item">
+                        <h3>📝 Generated Descriptions</h3>
+                        <p><strong>Short Description:</strong></p>
+                        <p>${desc.short_description}</p>
+                        <p><strong>Long Description:</strong></p>
+                        <p>${desc.long_description}</p>
+                    </div>
+                `;
+            }
+
+            // CSI Terms
+            if (data.csi_terms && data.csi_terms.length > 0) {
+                html += `
+                    <div class="result-item">
+                        <h3>🏛️ Cultural Terms (CSI)</h3>
+                `;
+                data.csi_terms.forEach(csi => {
+                    html += `
+                        <div style="margin-bottom: 10px; padding: 10px; background: #f0f0f0; border-radius: 5px;">
+                            <strong>${csi.vernacular_term}</strong> (${csi.transliteration})<br>
+                            <small>${csi.english_context}</small>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            // AI Providers
+            if (data.providers_available) {
+                html += `
+                    <div class="result-item">
+                        <h3>🤖 AI Providers Used</h3>
+                        <div class="tags">
+                            ${data.providers_available.map(provider => `<span class="tag">${provider}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            resultsDiv.innerHTML = html;
+            results.style.display = 'block';
+            results.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

@@ -8,10 +8,11 @@ aws-xray-sdk>=2.12.0
 fastapi>=0.109.0
 uvicorn>=0.27.0
 pydantic>=2.5.0
+jinja2>=3.1.0
 
 # Image Processing
 Pillow>=10.0.0
-opencv-python>=4.8.1.78
+opencv-python-headless>=4.8.1.78
 
 # Audio Processing
 pydub>=0.25.1
@@ -30,6 +31,8 @@ groq>=0.4.0  # For Groq fast inference
 # Utilities
 python-dotenv>=1.0.0
 requests>=2.31.0
+python-multipart>=0.0.6
 
-python-multipart
+# For production deployment
+gunicorn>=21.2.0
 
